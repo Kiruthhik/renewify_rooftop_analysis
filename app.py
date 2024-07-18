@@ -174,41 +174,5 @@ def solar_panels():
 
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Load the image
-#image_path = '../static/cut_polygon.png'  # Replace with your image path
-
-
-    '''# Draw the contours and corner points on the image
-    output_image = image.copy()
-    cv2.drawContours(output_image, [approx], -1, (0, 255, 0, 255), 2)  # Green color with full opacity
-    for point in corner_points:
-        cv2.circle(output_image, tuple(point), 5, (0, 0, 255, 255), -1)  # Red color with full opacity
-
-    # Convert to RGB if the image has an alpha channel
-    if output_image.shape[2] == 4:
-        output_image = cv2.cvtColor(output_image, cv2.COLOR_BGRA2RGBA)
-    else:
-        output_image = cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB)
-
-# Display the image
-plt.figure(figsize=(10, 10))
-plt.imshow(output_image)
-plt.title('Detected Polygon')
-plt.axis('off')
-plt.show()'''
+'''if __name__ == '__main__':
+    app.run(debug=True)'''
