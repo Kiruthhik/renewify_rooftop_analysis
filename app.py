@@ -20,7 +20,7 @@ polygon_points = []
 
 def convert_points(points):
     # Convert numpy intc types to Python int types
-    print("coverting points",points)
+    #print("coverting points",points)
     return [(int(point[0]), int(point[1])) for point in points]
 
 def get_satellite_image(lat, lng, zoom=21, size="640x640"):
@@ -157,7 +157,7 @@ def get_polygon_points():
     # This example assumes polygon points are saved in a global variable
     image_path = 'static/cut_polygon.png'
     polygon_points = convert_points(extract_polygon_points2(image_path))
-    print("points",polygon_points)
+    #print("points",polygon_points)
     if not polygon_points:
         return jsonify({"error": "No points found"}), 404
     return jsonify({"points": polygon_points})
@@ -167,9 +167,9 @@ def get_polygon_points():
 
 @app.route('/solar_panels')
 def solar_panels():
-    print("area",area)
+    #print("area",area)
     no_of_panels =int(area/17.62) - int((int(area/17.62)*0.285))
-    print("panel count",no_of_panels)
+    #print("panel count",no_of_panels)
     return render_template('solar_panels.html',panel_count=no_of_panels)
 
 
