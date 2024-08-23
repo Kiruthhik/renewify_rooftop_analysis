@@ -8,11 +8,16 @@ import requests
 
 app = Flask(__name__)
 
-latitude = 11.065249
-longitude = 77.091971
+
+#PSG clg
+#latitude = 11.065249
+#longitude = 77.091971
+
+latitude = 13.009120429978639
+longitude =  80.00372467325144
 
 # Replace with your Google Maps API key
-API_KEY = 'AIzaSyCOvCZr0GgzzjKbdeGiP_W7v4mHx_QCaTs'
+API_KEY = 'AIzaSyAG4nroilWCKF8vjSZGXY3fhH2li6cr7LY'
 
 area = 0.0
 
@@ -174,5 +179,5 @@ def solar_panels():
 
 
 
-'''if __name__ == '__main__':
-    app.run(debug=True)'''
+if __name__ == '__main__':
+    app.run(debug=True)
