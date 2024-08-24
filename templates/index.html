@@ -1,6 +1,22 @@
 {% extends 'layout.html' %}
 
 {% block main %}
+<style>
+    .bottom-button {
+            background-color: #2e0546;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            
+            transform: translateX(-50%);
+            text-align: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        
+</style>
 <div class="main-content">
     <p><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> <br><br><br><br><br><br><br><br></p>
     <h1>Here is your rooftop image!!</h1>
@@ -27,7 +43,7 @@
     
     <h5>Once the area is calculated, click below to extract the selected rooftop portion and visuallize solar panel installation</h5>
     <div class="button-container">
-        <button id="cut-polygon-btn" class="btn btn-success">Extract Rooftop Portion</button>
+        <button id="cut-polygon-btn" class="btn bottom-button">Extract Rooftop Portion</button>
     </div>
     
     <div class="image-container">
