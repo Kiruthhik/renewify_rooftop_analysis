@@ -10,11 +10,11 @@ app = Flask(__name__)
 
 
 #PSG clg
-#latitude = 11.065249
-#longitude = 77.091971
+latitude = 11.065249 
+longitude = 77.091971
 
-latitude = 13.009120429978639
-longitude =  80.00372467325144
+# latitude = 13.009120429978639
+# longitude =  80.00372467325144
 
 # Replace with your Google Maps API key
 API_KEY = 'AIzaSyAG4nroilWCKF8vjSZGXY3fhH2li6cr7LY'
