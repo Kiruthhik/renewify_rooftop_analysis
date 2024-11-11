@@ -54,83 +54,69 @@ $(document).ready(function() {
     };
 
     const drawPanels = (panelCount) => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(image, 0, 0);
 
-        $.get('/get_polygon_points', function(data) {
-            if (!data.points) {
-                console.error("No points data received");
-                return;
-            }
+    $.get('/get_polygon_points', function(data) {
+        if (!data.points) {
+            console.error("No points data received");
+            return;
+        }
 
-            const points = data.points;
+        const roofPolygon = data.points;
+        const obstaclePolygons = data.obstacles || []; // Fetch obstacles separately
 
-            if (!Array.isArray(points) || points.length === 0) {
-                console.error("Points data is not an array or is empty");
-                return;
-            }
+        // Draw the rooftop area
+        const scaledRoofPoints = roofPolygon.map(([x, y]) => [x * canvas.width / image.width, y * canvas.height / image.height]);
+        ctx.beginPath();
+        ctx.moveTo(scaledRoofPoints[0][0], scaledRoofPoints[0][1]);
+        scaledRoofPoints.forEach(point => ctx.lineTo(point[0], point[1]));
+        ctx.closePath();
+        ctx.clip();
 
-            console.log("Polygon points received:", points);
-
-            const scaledPoints = points.map(([x, y]) => {
-                return [x * canvas.width / image.width, y * canvas.height / image.height];
-            });
-
-            ctx.beginPath();
-            ctx.moveTo(scaledPoints[0][0], scaledPoints[0][1]);
-            for (let i = 1; i < scaledPoints.length; i++) {
-                ctx.lineTo(scaledPoints[i][0], scaledPoints[i][1]);
-            }
-            ctx.closePath();
-            ctx.clip();
-
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(scaledPoints[0][0], scaledPoints[0][1]);
-            for (let i = 1; i < scaledPoints.length; i++) {
-                ctx.lineTo(scaledPoints[i][0], scaledPoints[i][1]);
-            }
-            ctx.closePath();
-            ctx.stroke();
-
-            const panelGrid = [];
-            const totalPanelWidth = panelWidth + 2 * transparentBorderSize;
-            const totalPanelHeight = panelHeight + 2 * transparentBorderSize;
-
-            for (let y = 0; y < canvas.height; y += totalPanelHeight) {
-                for (let x = 0; x < canvas.width; x += totalPanelWidth) {
-                    if (panelGrid.length >= panelCount) break;
-                    if (ctx.isPointInPath(x + totalPanelWidth / 2, y + totalPanelHeight / 2)) {
-                        panelGrid.push({ x, y });
-                    }
-                }
+        // Panel grid with obstacle handling
+        const panelGrid = [];
+        for (let y = 0; y < canvas.height; y += totalPanelHeight) {
+            for (let x = 0; x < canvas.width; x += totalPanelWidth) {
                 if (panelGrid.length >= panelCount) break;
+
+                // Skip positions inside obstacle polygons
+                const pointInsideObstacle = obstaclePolygons.some(obstacle => {
+                    ctx.beginPath();
+                    obstacle.forEach(([ox, oy], index) => {
+                        const [sx, sy] = [ox * canvas.width / image.width, oy * canvas.height / image.height];
+                        index === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+                    });
+                    ctx.closePath();
+                    return ctx.isPointInPath(x + panelWidth / 2, y + panelHeight / 2);
+                });
+
+                if (pointInsideObstacle) continue; // Skip if point is inside an obstacle
+
+                panelGrid.push({ x, y });
             }
+        }
 
-            panelGrid.slice(0, panelCount).forEach(({ x, y }) => {
-                console.log(`Drawing panel at (${x}, ${y})`);
+        panelGrid.slice(0, panelCount).forEach(({ x, y }) => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(x, y, totalPanelWidth, totalPanelHeight);
 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.fillRect(x, y, totalPanelWidth, totalPanelHeight);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(x + transparentBorderSize, y + transparentBorderSize, panelWidth, panelHeight);
 
-                ctx.fillStyle = 'white';
-                ctx.fillRect(x + transparentBorderSize, y + transparentBorderSize, panelWidth, panelHeight);
+            ctx.fillStyle = 'rgba(0, 0, 132, 1)';
+            ctx.fillRect(x + transparentBorderSize + 1, y + transparentBorderSize + 1, panelWidth - 2, panelHeight - 2);
 
-                ctx.fillStyle = 'rgba(0, 0, 132, 1)';
-                ctx.fillRect(x + transparentBorderSize + 1, y + transparentBorderSize + 1, panelWidth - 2, panelHeight - 2);
-
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(x + transparentBorderSize + 1, y + transparentBorderSize + 1, panelWidth - 2, panelHeight - 2);
-            });
-
-            const powerOutput = panelCount * powerPerPanel;
-            powerOutputSpan.textContent = `Power Output: ${powerOutput.toFixed(2)} kWh`;
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("Error fetching polygon points:", textStatus, errorThrown);
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x + transparentBorderSize + 1, y + transparentBorderSize + 1, panelWidth - 2, panelHeight - 2);
         });
-    };
+
+        const powerOutput = panelCount * powerPerPanel;
+        powerOutputSpan.textContent = `Power Output: ${powerOutput.toFixed(2)} kWh`;
+    });
+};
+
 
     slider.addEventListener('input', function() {
         const panelCount = parseInt(this.value);

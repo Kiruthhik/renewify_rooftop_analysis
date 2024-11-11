@@ -90,38 +90,41 @@ def calculate_area():
 @app.route('/cut_polygon', methods=['POST'])
 def cut_polygon():
     data = request.json
-    points = data['points']
-
-    # Convert points to integer
-    points = [(int(point[0]), int(point[1])) for point in points]
+    obstacle_list = data['obstacles']  # List of obstacle polygons
 
     # Load the original image
     image = Image.open("static/satellite_image.png").convert("RGBA")
 
-    # Create a mask image
+    # Create a mask image for all obstacles combined
     mask = Image.new('L', (image.width, image.height), 0)
-    ImageDraw.Draw(mask).polygon(points, outline=1, fill=1)
+    
+    # Draw each obstacle polygon onto the mask
+    for obstacle_points in obstacle_list:
+        obstacle_points = [(int(point[0]), int(point[1])) for point in obstacle_points]
+        ImageDraw.Draw(mask).polygon(obstacle_points, outline=1, fill=1)
+    
+    # Convert image and mask to numpy arrays
     mask = np.array(mask)
-
-    # Convert image to numpy array
     image_np = np.array(image)
 
-    # Create an alpha channel with the same size as the image
+    # Create an alpha channel
     alpha_channel = np.zeros_like(image_np[:, :, 0])
-
-    # Set the alpha channel to 255 for the polygon area
     alpha_channel[mask == 1] = 255
 
     # Add the alpha channel to the image
     image_np = np.dstack((image_np[:, :, :3], alpha_channel))
 
-    # Convert back to Image
-    new_image = Image.fromarray(image_np, 'RGBA')
-
-    # Save the result
+    # Save the new image
     output_path = "static/cut_polygon.png"
+    new_image = Image.fromarray(image_np, 'RGBA')
     new_image.save(output_path)
+
+    print("obstacle_list:",obstacle_list)
+    print("mask:",mask)
+    
     return jsonify({"image_url": output_path})
+
+
 
 
 def extract_polygon_points2(image_path):

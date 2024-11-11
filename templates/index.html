@@ -45,11 +45,18 @@
     <div class="button-container">
         <button id="cut-polygon-btn" class="btn bottom-button">Extract Rooftop Portion</button>
     </div>
+
+    <div class="container mt-4">
+        <h5>Mark obstacles on the rooftop. Panels will avoid these areas.</h5>
+        <button id="add-obstacle-btn" class="btn btn-primary">Add Obstacle</button>
+        <button id="stop-drawing-obstacle-btn" class="btn btn-secondary">Stop Drawing Obstacles</button>
+    </div>
     
     <div class="image-container">
     </div>
 </div>
 <!-- Include jQuery from a CDN -->
+ 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
