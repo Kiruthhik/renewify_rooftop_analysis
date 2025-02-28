@@ -90,38 +90,31 @@ def calculate_area():
 @app.route('/cut_polygon', methods=['POST'])
 def cut_polygon():
     data = request.json
-    obstacle_list = data['obstacles']  # List of obstacle polygons
+    polygon_points = data['points']
+    obstacle_list = data['obstacles']
 
     # Load the original image
     image = Image.open("static/satellite_image.png").convert("RGBA")
 
-    # Create a mask image for all obstacles combined
-    mask = Image.new('L', (image.width, image.height), 0)
-    
-    # Draw each obstacle polygon onto the mask
+    # Create a mask covering the entire image
+    mask = Image.new('L', (image.width, image.height), 255)
+
+    # Draw the rooftop polygon on the mask as a hole
+    polygon_points = [(int(point[0]), int(point[1])) for point in polygon_points]
+    ImageDraw.Draw(mask).polygon(polygon_points, outline=0, fill=0)
+
+    # Draw the obstacles on the mask as holes
     for obstacle_points in obstacle_list:
         obstacle_points = [(int(point[0]), int(point[1])) for point in obstacle_points]
-        ImageDraw.Draw(mask).polygon(obstacle_points, outline=1, fill=1)
-    
-    # Convert image and mask to numpy arrays
-    mask = np.array(mask)
-    image_np = np.array(image)
+        ImageDraw.Draw(mask).polygon(obstacle_points, outline=0, fill=0)
 
-    # Create an alpha channel
-    alpha_channel = np.zeros_like(image_np[:, :, 0])
-    alpha_channel[mask == 1] = 255
-
-    # Add the alpha channel to the image
-    image_np = np.dstack((image_np[:, :, :3], alpha_channel))
+    # Apply the mask to the original image
+    image.putalpha(mask)
 
     # Save the new image
     output_path = "static/cut_polygon.png"
-    new_image = Image.fromarray(image_np, 'RGBA')
-    new_image.save(output_path)
+    image.save(output_path)
 
-    print("obstacle_list:",obstacle_list)
-    print("mask:",mask)
-    
     return jsonify({"image_url": output_path})
 
 
@@ -176,7 +169,8 @@ def get_polygon_points():
 @app.route('/solar_panels')
 def solar_panels():
     #print("area",area)
-    no_of_panels =int(area/17.62) - int((int(area/17.62)*0.285))
+    #no_of_panels =int(area/17.62) - int((int(area/17.62)*0.285))
+    no_of_panels = 100
     #print("panel count",no_of_panels)
     return render_template('solar_panels.html',panel_count=no_of_panels)
 

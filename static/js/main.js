@@ -6,6 +6,7 @@ let isDrawingObstacle = false;
 let canvas, ctx, image;
 
 
+
 // Function to add a new obstacle
 function addObstacle(points) {
     obstacles.push(points);
@@ -79,7 +80,10 @@ function cutPolygon() {
         type: 'POST',
         url: '/cut_polygon',
         contentType: 'application/json',
-        data: JSON.stringify({ points: formattedPoints, obstacles: formattedObstacles }),
+        data: JSON.stringify({
+            points: formattedPoints,
+            obstacles: formattedObstacles
+        }),
         success: function(response) {
             window.location.href = '/solar_panels';
         }
